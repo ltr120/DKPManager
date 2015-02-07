@@ -18,4 +18,8 @@ public class Item implements Serializable {
         id_ = id;
         name_ = name;
     }
+    
+    public String getName() {
+        return name_;
+    }
 }
