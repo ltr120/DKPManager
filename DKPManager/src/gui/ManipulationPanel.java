@@ -234,8 +234,13 @@ public class ManipulationPanel extends JPanel {
                     DKPEvent e;
                     List<WOWCharacter> exceptionList = new LinkedList<WOWCharacter>();
                     for (int i : rows) {
+                        String itemName = itemName_.getText();
+                        if ("n/a".equals(itemName) || "-".equals(itemName)) {
+                            itemName = "";
+                        }
                         e = new DKPEvent(
-                                Integer.parseInt(score_.getText().replaceAll(",", "")),
+                                Integer.parseInt(score_.getText().replaceAll(
+                                        ",", "")),
                                 DKPEventType
                                         .getDKPEventTypeByString((String) eventTypeList_
                                                 .getSelectedItem()),
@@ -243,9 +248,8 @@ public class ManipulationPanel extends JPanel {
                                         : desc_.getText(),
                                 characters_.get(i),
                                 // TODO: Item should be fancier
-                                itemName_.getText().length() == 0 ? null
-                                        : new Item(Constants.DEFAULT_ITEM_ID,
-                                                itemName_.getText()),
+                                itemName.length() == 0 ? null : new Item(
+                                        Constants.DEFAULT_ITEM_ID, itemName),
                                 Constants.bossMap.get(((String) bossList_
                                         .getSelectedItem()).substring(0,
                                         ((String) bossList_.getSelectedItem())

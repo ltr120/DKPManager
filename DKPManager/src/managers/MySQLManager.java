@@ -180,7 +180,7 @@ public class MySQLManager {
     }
     
     private Item loadItem(int itemId) throws SQLException {
-        ResultSet rs = itemStmt.executeQuery("SELECT * FROM `item` WHERE `id`=`" + itemId + "`");
+        ResultSet rs = itemStmt.executeQuery("SELECT * FROM `item` WHERE `id`=" + itemId + "");
         if (rs.next()) {
             int inGameId = rs.getInt("inGameId");
             String name = rs.getString("name");
