@@ -26,6 +26,7 @@ import javax.swing.SwingConstants;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableColumnModel;
+
 import model.Boss;
 import model.Constants;
 import model.Constants.DKPEventType;
@@ -129,6 +130,7 @@ public class ManipulationPanel extends JPanel {
     private void setCharacterTable() {
         characters_ = QueryHandler.getAllCharacters();
         table_ = new JTable(MyTableModel.getInstance());
+        table_.setDefaultRenderer(Object.class, MyClassColorRenderer.getInstance());
 
         // formatting
         TableColumnModel tcm = table_.getColumnModel();
@@ -142,6 +144,7 @@ public class ManipulationPanel extends JPanel {
             @Override
             public void tableChanged(TableModelEvent arg0) {
                 characters_ = QueryHandler.getAllCharacters();
+                MyClassColorRenderer.setCharacters(characters_);
                 TableColumnModel tcm = table_.getColumnModel();
                 tcm.getColumn(0).setPreferredWidth(300);
                 tcm.getColumn(1).setPreferredWidth(40);
@@ -181,6 +184,10 @@ public class ManipulationPanel extends JPanel {
                     newCharPanel.add(new JLabel("Character Realm: "));
                     JTextField realm = new JTextField(Constants.DEFAULT_REALM);
                     newCharPanel.add(realm);
+                    newCharPanel.add(new JLabel("Character Class:"));
+                    JComboBox<String> classList = new JComboBox<String>(
+                            Constants.WOWCharacterClass.names());
+                    newCharPanel.add(classList);
                     int result = JOptionPane.showConfirmDialog(null,
                             newCharPanel,
                             Constants.MANIPULATION_ADD_CHAR_BUTT_NAME,
@@ -198,7 +205,7 @@ public class ManipulationPanel extends JPanel {
                             realmString = Constants.DEFAULT_REALM;
                         }
                         WOWCharacter newChar = new WOWCharacter(nameString,
-                                realmString);
+                                realmString, Constants.WOWCharacterClass.valueOf((String) classList.getSelectedItem()));
                         QueryHandler.addCharacter(newChar);
                         // update tables
                         MyTableModel.refreshTableData();

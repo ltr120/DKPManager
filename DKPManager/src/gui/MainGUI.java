@@ -24,6 +24,9 @@ import javax.swing.JProgressBar;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
+import javax.swing.UIManager;
+import javax.swing.UIManager.LookAndFeelInfo;
+import javax.swing.UnsupportedLookAndFeelException;
 
 import model.Constants;
 import model.QueryHandler;
@@ -45,7 +48,7 @@ public class MainGUI implements ActionListener, PropertyChangeListener {
         setTabbedPane();
         setProgressDialog();
     }
-    
+
     private void setProgressDialog() {
         progressBar_ = new JProgressBar(0, 100);
         progressBar_.setStringPainted(true);
@@ -111,14 +114,6 @@ public class MainGUI implements ActionListener, PropertyChangeListener {
         mainDKPFrame.setVisible(true);
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                createAndShowGui();
-            }
-        });
-    }
-
     @Override
     public void actionPerformed(ActionEvent arg0) {
         if (arg0.getSource() instanceof JMenuItem) {
@@ -144,7 +139,7 @@ public class MainGUI implements ActionListener, PropertyChangeListener {
                 progressDialog_.setVisible(true);
                 JOptionPane.showMessageDialog(null, "Data saved.");
             } else if ("Clear".equals(mi.getText())) {
-                int r =JOptionPane
+                int r = JOptionPane
                         .showConfirmDialog(null,
                                 "Are you sure to delete all data from database and this application?");
                 if (r == JOptionPane.OK_OPTION) {
@@ -157,11 +152,11 @@ public class MainGUI implements ActionListener, PropertyChangeListener {
             }
         }
     }
-    
+
     private class ButtonTask extends SwingWorker<Void, Void> {
-        
+
         MenuItemType type;
-        
+
         private ButtonTask(MenuItemType t) {
             type = t;
         }
@@ -189,7 +184,7 @@ public class MainGUI implements ActionListener, PropertyChangeListener {
             }
             return null;
         }
-        
+
         @Override
         protected void done() {
             super.done();
@@ -206,5 +201,26 @@ public class MainGUI implements ActionListener, PropertyChangeListener {
             progressBar_.setValue(progress);
             progressBar_.setString(progress + "%");
         }
+    }
+
+    public static void main(String[] args) {
+        // Set look and feel
+        try {
+            for (LookAndFeelInfo laf : UIManager.getInstalledLookAndFeels()){
+                System.out.println(laf.getClassName());
+                if (laf.getClassName().toLowerCase().contains("nimbus")) {
+                    UIManager.setLookAndFeel(laf.getClassName());
+                }
+            }
+        } catch (ClassNotFoundException | InstantiationException
+                | IllegalAccessException | UnsupportedLookAndFeelException e) {
+            e.printStackTrace();
+        }
+
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                createAndShowGui();
+            }
+        });
     }
 }
