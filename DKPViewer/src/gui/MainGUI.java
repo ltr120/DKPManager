@@ -62,6 +62,7 @@ public class MainGUI implements ActionListener, PropertyChangeListener {
     private void setTabbedPane() {
         tabbedPane_ = new JTabbedPane();
         tabbedPane_.add("DKP Table", new TableDisplay());
+        tabbedPane_.add("DKP Rules", new DKPRulesPanel());
 
         // Add tabbedPane to main panel
         tabbedPane_.setPreferredSize(new Dimension(1000, 500));
