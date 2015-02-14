@@ -78,7 +78,7 @@ public class QueryHandler {
             totalScore = c.getTotalDKP();
             decayScore = calcDecayScore(totalScore);
             DKPEvent e = new DKPEvent(decayScore, DKPEventType.WEEKLY_DECAY, c,
-                    null, null);
+                    null, Difficulty.NOT_APPLICABLE);
             try {
                 c.addDKPEvent(e);
             } catch (NotEnoughDKPException e1) {

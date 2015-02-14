@@ -92,6 +92,7 @@ public class Constants {
 
     // Boss
     public enum Difficulty {
+        NOT_APPLICABLE,
         NORMAL,
         HEROIC,
         MYTHIC;
