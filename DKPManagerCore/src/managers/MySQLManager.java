@@ -19,7 +19,7 @@ import model.Item;
 import model.NotEnoughDKPException;
 import model.WOWCharacter;
 
-public class MySQLManager {
+public class MySQLManager extends AbstractManager {
 
     private Connection conn = null;
     private Statement stmt = null;
@@ -71,6 +71,7 @@ public class MySQLManager {
         }
     }
 
+    @Override
     public void saveData(List<WOWCharacter> characters) {
         // Clear database
         clearDatabase();
@@ -115,6 +116,7 @@ public class MySQLManager {
         }
     }
 
+    @Override
     public List<WOWCharacter> loadData() {
         List<WOWCharacter> characters = new LinkedList<WOWCharacter>();
         try {
@@ -123,7 +125,8 @@ public class MySQLManager {
             charStmt = conn.createStatement();
             eventStmt = conn.createStatement();
             itemStmt = conn.createStatement();
-            ResultSet rs = charStmt.executeQuery("SELECT * FROM `wowcharacter`");
+            ResultSet rs = charStmt
+                    .executeQuery("SELECT * FROM `wowcharacter`");
             ResultSet dkpeventRs;
             String cName;
             String cRealm;
@@ -152,8 +155,9 @@ public class MySQLManager {
         }
         return characters;
     }
-    
-    private void addEventToCharacter(ResultSet rs, WOWCharacter c) throws SQLException {
+
+    private void addEventToCharacter(ResultSet rs, WOWCharacter c)
+            throws SQLException {
         DKPEvent e;
         if (rs.next()) {
             int score = rs.getInt("score");
@@ -163,14 +167,16 @@ public class MySQLManager {
             if (!bossName.equals("-")) {
                 boss = Constants.bossMap.get(rs.getString("bossName"));
             }
-            Difficulty difficulty = Difficulty.valueOf(rs.getString("difficulty"));
+            Difficulty difficulty = Difficulty.valueOf(rs
+                    .getString("difficulty"));
             String description = rs.getString("description");
             int itemId = rs.getInt("itemId");
             Item item = null;
             if (itemId != -1) {
                 item = loadItem(itemId);
             }
-            e = new DKPEvent(score, type, description, c, item, boss, difficulty);
+            e = new DKPEvent(score, type, description, c, item, boss,
+                    difficulty);
             try {
                 c.addDKPEvent(e);
             } catch (NotEnoughDKPException e1) {
@@ -180,9 +186,10 @@ public class MySQLManager {
             addEventToCharacter(rs, c);
         }
     }
-    
+
     private Item loadItem(int itemId) throws SQLException {
-        ResultSet rs = itemStmt.executeQuery("SELECT * FROM `item` WHERE `id`=" + itemId + "");
+        ResultSet rs = itemStmt.executeQuery("SELECT * FROM `item` WHERE `id`="
+                + itemId + "");
         if (rs.next()) {
             int inGameId = rs.getInt("inGameId");
             String name = rs.getString("name");

@@ -1,9 +1,11 @@
 package model;
 
+import java.io.File;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import managers.JAXBManager;
 import managers.MySQLManager;
 import model.Constants.DKPEventType;
 import model.Constants.Difficulty;
@@ -14,42 +16,41 @@ public class QueryHandler {
 
     private List<WOWCharacter> characters_ = null;
 
-    MySQLManager manager_;
+    MySQLManager dbManager_;
+    JAXBManager xmlManager_;
 
     private QueryHandler() {
-        manager_ = new MySQLManager();
+        dbManager_ = new MySQLManager();
+        xmlManager_ = new JAXBManager();
 
         // mock values
-//        characters_ = new LinkedList<WOWCharacter>();
-//        characters_.add(new WOWCharacter("testCharacter1"));
-//        characters_.add(new WOWCharacter("testCharacter2"));
-//        characters_.add(new WOWCharacter("testCharacter3"));
-//        WOWCharacter c1 = new WOWCharacter("Woshiyigenai");
-//        DKPEvent e = new DKPEvent(100, DKPEventType.ARRIVE_ON_TIME,
-//                Constants.DEFAULT_EVENT_DESCRIPTION, c1, null,
-//                Constants.bossMap.get("Gruul"), Difficulty.HEROIC);
-//        try {
-//            c1.addDKPEvent(e);
-//        } catch (NotEnoughDKPException e1) {
-//            // TODO Auto-generated catch block
-//            e1.printStackTrace();
-//        }
-//        characters_.add(c1);
-        characters_ = manager_.loadData();
+        characters_ = dbManager_.loadData();
     }
 
     public static void saveToDatabase() {
-        QueryHandler.getInstance().manager_
-                .saveData(QueryHandler.getInstance().characters_);
+        QueryHandler.getInstance().dbManager_.saveData(QueryHandler
+                .getInstance().characters_);
+    }
+
+    public static void saveToFile(File f) {
+        QueryHandler.getInstance().xmlManager_.setFile(f);
+        QueryHandler.getInstance().xmlManager_.saveData(QueryHandler
+                .getInstance().characters_);
     }
 
     public static void loadFromDatabase() {
-        QueryHandler.getInstance().characters_ = QueryHandler.getInstance().manager_
+        QueryHandler.getInstance().characters_ = QueryHandler.getInstance().dbManager_
                 .loadData();
     }
-    
+
+    public static void loadFromFile(File f) {
+        QueryHandler.getInstance().xmlManager_.setFile(f);
+        QueryHandler.getInstance().characters_ = QueryHandler.getInstance().xmlManager_
+                .loadData();
+    }
+
     public static void clearDatabase() {
-        QueryHandler.getInstance().manager_.clearDatabase();
+        QueryHandler.getInstance().dbManager_.clearDatabase();
     }
 
     public static QueryHandler getInstance() {

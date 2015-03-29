@@ -7,7 +7,7 @@ import java.util.Map;
 public class Constants {
 
     // General
-    public static final String VERSION_STRING = "v0.0.2 (Alpha)";
+    public static final String VERSION_STRING = "v0.0.3 (Alpha)";
     public static final String GUILD_NAME = "My Lifes Getting Better";
     public static final double DECAY_RATE = 0.1;
 

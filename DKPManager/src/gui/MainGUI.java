@@ -10,9 +10,15 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 import javax.swing.JComponent;
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -38,6 +44,7 @@ public class MainGUI implements ActionListener, PropertyChangeListener {
     private JTabbedPane tabbedPane_;
     private JProgressBar progressBar_;
     private JDialog progressDialog_;
+    private JFileChooser fileChooser_;
 
     private MainGUI(JFrame frame) {
         mainPanel_ = new JPanel();
@@ -47,6 +54,11 @@ public class MainGUI implements ActionListener, PropertyChangeListener {
         setMenuBar();
         setTabbedPane();
         setProgressDialog();
+        setFileChooser();
+    }
+
+    private void setFileChooser() {
+        fileChooser_ = new JFileChooser(new File("."));
     }
 
     private void setProgressDialog() {
@@ -77,13 +89,23 @@ public class MainGUI implements ActionListener, PropertyChangeListener {
         // File
         JMenu menu = new JMenu("File");
 
-        // File = Load
+        // File - Load
         mi = new JMenuItem("Load");
+        mi.addActionListener(this);
+        menu.add(mi);
+
+        // File - Load from File
+        mi = new JMenuItem("Load from File");
         mi.addActionListener(this);
         menu.add(mi);
 
         // File - Save
         mi = new JMenuItem("Save");
+        mi.addActionListener(this);
+        menu.add(mi);
+
+        // File - Save to File
+        mi = new JMenuItem("Save to File");
         mi.addActionListener(this);
         menu.add(mi);
 
@@ -133,6 +155,33 @@ public class MainGUI implements ActionListener, PropertyChangeListener {
                     progressDialog_.setVisible(true);
                     JOptionPane.showMessageDialog(null, "Data loaded.");
                 }
+            } else if ("Load from File".equals(mi.getText())) {
+                int r = JOptionPane
+                        .showConfirmDialog(null,
+                                "Are you sure to discard all possible changes and reload data from file?\n");
+                if (r == JOptionPane.OK_OPTION) {
+                    r = fileChooser_.showOpenDialog(mainPanel_);
+                    if (r == JFileChooser.APPROVE_OPTION) {
+                        File selectedFile = fileChooser_.getSelectedFile();
+                        ButtonTask bt = new ButtonTask(
+                                MenuItemType.LOAD_FROM_FILE, selectedFile);
+                        bt.addPropertyChangeListener(this);
+                        bt.execute();
+                        progressDialog_.setVisible(true);
+                        JOptionPane.showMessageDialog(null, "Data loaded.");
+                    } else {
+                        return;
+                    }
+                }
+            } else if ("Save to File".equals(mi.getText())) {
+                DateFormat df = new SimpleDateFormat("yy-MM-dd-HH-mm", Locale.US);
+                File tmpFile = new File("./DKP-" + (df.format(new Date()) + ".xml"));
+                ButtonTask bt = new ButtonTask(MenuItemType.SAVE_TO_FILE,
+                        tmpFile);
+                bt.addPropertyChangeListener(this);
+                bt.execute();
+                progressDialog_.setVisible(true);
+                JOptionPane.showMessageDialog(null, "Data saved to " + tmpFile.getAbsolutePath());
             } else if ("Save".equals(mi.getText())) {
                 ButtonTask bt = new ButtonTask(MenuItemType.SAVE);
                 bt.addPropertyChangeListener(this);
@@ -157,9 +206,15 @@ public class MainGUI implements ActionListener, PropertyChangeListener {
     private class ButtonTask extends SwingWorker<Void, Void> {
 
         MenuItemType type;
+        File file_;
 
         private ButtonTask(MenuItemType t) {
             type = t;
+        }
+
+        private ButtonTask(MenuItemType t, File f) {
+            type = t;
+            file_ = f;
         }
 
         @Override
@@ -180,6 +235,16 @@ public class MainGUI implements ActionListener, PropertyChangeListener {
                 setProgress(50);
                 QueryHandler.loadFromDatabase();
                 setProgress(90);
+                MyTableModel.refreshTableData();
+                setProgress(100);
+            } else if (type == MenuItemType.SAVE_TO_FILE) {
+                setProgress(0);
+                QueryHandler.saveToFile(file_);
+                setProgress(100);
+            } else if (type == MenuItemType.LOAD_FROM_FILE) {
+                setProgress(0);
+                QueryHandler.loadFromFile(file_);
+                setProgress(50);
                 MyTableModel.refreshTableData();
                 setProgress(100);
             }
@@ -207,7 +272,7 @@ public class MainGUI implements ActionListener, PropertyChangeListener {
     public static void main(String[] args) {
         // Set look and feel
         try {
-            for (LookAndFeelInfo laf : UIManager.getInstalledLookAndFeels()){
+            for (LookAndFeelInfo laf : UIManager.getInstalledLookAndFeels()) {
                 System.out.println(laf.getClassName());
                 if (laf.getClassName().toLowerCase().contains("nimbus")) {
                     UIManager.setLookAndFeel(laf.getClassName());
